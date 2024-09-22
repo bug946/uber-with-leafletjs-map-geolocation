@@ -1,40 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 
 <head>
-	<title>Geolocation</title>
-	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" />
-	<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+    <title>Geolocalização</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
 
-	<style>
-		body {
-			margin: 0;
-			padding: 0;
-		}
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
 
-		.leaflet-marker-icon,
-		.leaflet-marker-shadow {
-			display: none !important;
-		}
+        .leaflet-marker-icon,
+        .leaflet-marker-shadow {
+            display: none !important;
+        }
 
-		.pointers,
-		.taxi-pointers {
-			display: block !important;
-		}
-	</style>
+        .pointers,
+        .taxi-pointers {
+            display: block !important;
+        }
+    </style>
 
 </head>
 
 <body>
-	<div id="map" style="width:100%; height: 100vh"></div>
-	<script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"></script>
-	<script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+    <div id="map" style="width:100%; height: 100vh"></div>
+    <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
 
-
-	<script>
-		// Personalizar css no mapa
-		let myCustomColourUser = 'background-color: red;'
-		const markerHtml = `
+    <script>
+        // Personalizar css no mapa
+        let myCustomColourUser = 'background-color: red;';
+        const markerHtml = `
 			width: 3rem;
 			height: 3rem;
 			display: block;
@@ -45,88 +44,74 @@
 			transform: rotate(45deg);
 			border: 3px solid #FFFFFF;`
 
-		// Coordenadas do Ponta A - Táxi
-		const coordTaxi = [-11.732997565990585, -61.78596675395966];
-		// Coordenadas do Ponta B - Usuário
-		const coordUser = [-11.73094, -61.7925];
+        // Coordenadas do Ponto A - Táxi
+        const coordTaxi = [-20.192786, -50.925093]; // Coordenadas iniciais do táxi
+        // Coordenadas do Ponto B - Usuário
+        const coordUser = [-20.202533, -50.927947]; // Destino final do táxi (usuário)
 
-		// Iniciar o mapa com coordenadas do ponto A
-		const map = L.map('map').setView(coordTaxi, 40);
+        // Iniciar o mapa com coordenadas do ponto A
+        const map = L.map('map').setView(coordTaxi, 15);
 
-		L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png').addTo(map);
+        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png').addTo(map);
 
+        // Personalizar ícone do táxi
+        const taxiIcon = L.icon({
+            className: "taxi-pointers",
+            iconUrl: 'taxi.png', // Certifique-se que o caminho para o ícone está correto
+            iconSize: [45, 45]
+        });
+        const marker = L.marker(coordTaxi, { icon: taxiIcon }).addTo(map);
 
-		// Personalizar Ponto na mapa com imagem do táxi.
-		const taxiIcon = L.icon({
-			className: "taxi-pointers",
-			iconUrl: 'taxi.png',
-			iconSize: [45, 45]
-		})
-		const marker = L.marker(coordTaxi, { icon: taxiIcon }).addTo(map);
+        function startService() {
+            // Array de coordenadas simulando o trajeto do táxi até o cliente
+            const latlng = [
+                { lat: -20.192786, lng: -50.925093 }, // Ponto inicial (táxi)
+                { lat: -20.193834, lng: -50.925179 },
+                { lat: -20.194619, lng: -50.925307 },
+                { lat: -20.195747, lng: -50.925393 },
+                { lat: -20.196431, lng: -50.925479 },
+                { lat: -20.197076, lng: -50.925586 },
+                { lat: -20.197962, lng: -50.925694 },
+                { lat: -20.198788, lng: -50.925779 },
+                { lat: -20.199915, lng: -50.925887 },
+                { lat: -20.200821, lng: -50.926058 },
+                { lat: -20.201728, lng: -50.926144 },
+                { lat: -20.202775, lng: -50.926252 },
+                { lat: -20.202654, lng: -50.927045 },
+                { lat: -20.202533, lng: -50.927947 }  // Destino final (usuário)
+            ];
 
-		function startService () {
-			// Array de coordenadas. Simula o táxi enviando a localização para o APP.
-			const latlng = [
-				{ lat: -11.733, lng: -61.78595 },
-				{ lat: -11.73379, lng: -61.78597 },
-				{ lat: -11.73379, lng: -61.78597 },
-				{ lat: -11.73381, lng: -61.78605 },
-				{ lat: -11.73383, lng: -61.78613 },
-				{ lat: -11.7338, lng: -61.78649 },
-				{ lat: -11.7338, lng: -61.78659 },
-				{ lat: -11.73383, lng: -61.78687 },
-				{ lat: -11.7338, lng: -61.78715 },
-				{ lat: -11.7338, lng: -61.78724 },
-				{ lat: -11.73381, lng: -61.78808 },
-				{ lat: -11.7338, lng: -61.79009 },
-				{ lat: -11.73378, lng: -61.79223 },
-				{ lat: -11.73378, lng: -61.79223 },
-				{ lat: -11.73291, lng: -61.79224 },
-				{ lat: -11.73291, lng: -61.79224 },
-				{ lat: -11.7328, lng: -61.79223 },
-				{ lat: -11.73279, lng: -61.79303 },
-				{ lat: -11.73279, lng: -61.79303 },
-				{ lat: -11.73094, lng: -61.79298 },
-				{ lat: -11.73094, lng: -61.79298 },
-				{ lat: -11.73094, lng: -61.7925 }
-			]
+            // Adiciona marcador personalizado para o usuário
+            const userIcon = L.divIcon({
+                className: "pointers",
+                iconAnchor: [0, 24],
+                labelAnchor: [-6, 0],
+                popupAnchor: [0, -36],
+                html: `<span style="${markerHtml}${myCustomColourUser}" />`
+            });
+            L.marker(coordUser, { icon: userIcon }).addTo(map);
 
-		   // Personalizar Ponto na mapa com imagem do Usuário.
-			const icon = L.divIcon({
-				className: "pointers",
-				iconAnchor: [0, 24],
-				labelAnchor: [-6, 0],
-				popupAnchor: [0, -36],
-				html: `<span style="${markerHtml}${myCustomColourUser}" />`
-			})
-			var newMarker = L.marker([coordUser[0], coordUser[1]], { icon }).addTo(map);
+            // Configura o controle de rota e as instruções em português
+            L.Routing.control({
+                waypoints: latlng.map(point => L.latLng(point.lat, point.lng)),
+                language: 'pt-BR', // Configuração de linguagem para Português
+                lineOptions: {
+                    styles: [{ color: 'red', opacity: 1, weight: 5 }] // Linha da rota em vermelho vívido
+                }
+            }).on('routesfound', function (e) {
+                latlng.forEach(function (coord, index) {
+                    setTimeout(function () {
+                        marker.setLatLng([coord.lat, coord.lng]);
+                        if (coord.lat === coordUser[0] && coord.lng === coordUser[1]) {
+                            alert('Seu táxi chegou ao destino!');
+                        }
+                    }, 1000 * index); // A cada segundo, atualiza a posição do táxi no mapa
+                });
+            }).addTo(map);
+        };
 
-			// Identifica a melhor rota para iniciar a viagem.
-			L.Routing.control({
-				waypoints: [
-					L.latLng(coordTaxi[0], coordTaxi[1]),
-					L.latLng(coordUser[0], coordUser[1])
-				]
-			}).on('routesfound', function (e) {
-				// Loop de coordenadas. Simula o táxi enviando a localização para o APP.
-				latlng.forEach(function (coord, index) {
-					setTimeout(function () {
-						marker.setLatLng([coord.lat, coord.lng]);
-						// Identifica o final da viagem.
-						if (coord.lat === coordUser[0] && coord.lng === coordUser[1]) {
-							alert('Seu táxi acabou de chegar!')
-						}
-					}, 1000 * index)
-				})
-
-			}).addTo(map);
-		};
-
-		startService()
-
-	</script>
-
-
+        startService(); // Inicia o serviço ao carregar a página
+    </script>
 </body>
 
 </html>
