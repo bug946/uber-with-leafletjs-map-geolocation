@@ -18,7 +18,7 @@
         }
 
         .pointers,
-        .taxi-pointers {
+        .guincho-pointers {
             display: block !important;
         }
     </style>
@@ -44,41 +44,40 @@
 			transform: rotate(45deg);
 			border: 3px solid #FFFFFF;`
 
-        // Coordenadas do Ponto A - Táxi
-        const coordTaxi = [-20.192786, -50.925093]; // Coordenadas iniciais do táxi
+        // Coordenadas do Ponto A - Guincho
+        const coordGuincho = [-20.188947, -50.934689]; // Coordenadas iniciais do guincho
         // Coordenadas do Ponto B - Usuário
-        const coordUser = [-20.202533, -50.927947]; // Destino final do táxi (usuário)
+        const coordUser = [-20.194385, -50.915141]; // Destino final do guincho (usuário)
 
         // Iniciar o mapa com coordenadas do ponto A
-        const map = L.map('map').setView(coordTaxi, 15);
+        const map = L.map('map').setView(coordGuincho, 15);
 
         L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png').addTo(map);
 
-        // Personalizar ícone do táxi
-        const taxiIcon = L.icon({
-            className: "taxi-pointers",
-            iconUrl: 'taxi.png', // Certifique-se que o caminho para o ícone está correto
+        // Personalizar ícone do guincho
+        const guinchoIcon = L.icon({
+            className: "guincho-pointers",
+            iconUrl: 'Guincho.png', // Certifique-se de ter o ícone Guincho.png no diretório correto
             iconSize: [45, 45]
         });
-        const marker = L.marker(coordTaxi, { icon: taxiIcon }).addTo(map);
+        const marker = L.marker(coordGuincho, { icon: guinchoIcon }).addTo(map);
 
         function startService() {
-            // Array de coordenadas simulando o trajeto do táxi até o cliente
+            // Array de coordenadas simulando o trajeto do guincho até o cliente
             const latlng = [
-                { lat: -20.192786, lng: -50.925093 }, // Ponto inicial (táxi)
-                { lat: -20.193834, lng: -50.925179 },
-                { lat: -20.194619, lng: -50.925307 },
-                { lat: -20.195747, lng: -50.925393 },
-                { lat: -20.196431, lng: -50.925479 },
-                { lat: -20.197076, lng: -50.925586 },
-                { lat: -20.197962, lng: -50.925694 },
-                { lat: -20.198788, lng: -50.925779 },
-                { lat: -20.199915, lng: -50.925887 },
-                { lat: -20.200821, lng: -50.926058 },
-                { lat: -20.201728, lng: -50.926144 },
-                { lat: -20.202775, lng: -50.926252 },
-                { lat: -20.202654, lng: -50.927045 },
-                { lat: -20.202533, lng: -50.927947 }  // Destino final (usuário)
+                { lat: -20.188947, lng: -50.934689 }, // Ponto inicial (guincho)
+                { lat: -20.188987, lng: -50.933649 },
+                { lat: -20.189279, lng: -50.932200 },
+                { lat: -20.189843, lng: -50.929421 },
+                { lat: -20.190558, lng: -50.926331 },
+                { lat: -20.191283, lng: -50.925119 },
+                { lat: -20.191173, lng: -50.924282 },
+                { lat: -20.191938, lng: -50.922222 },
+                { lat: -20.192220, lng: -50.920903 },
+                { lat: -20.192774, lng: -50.919250 },
+                { lat: -20.193499, lng: -50.917351 },
+                { lat: -20.194244, lng: -50.915581 },
+                { lat: -20.194385, lng: -50.915141 }  // Destino final (usuário)
             ];
 
             // Adiciona marcador personalizado para o usuário
@@ -103,9 +102,9 @@
                     setTimeout(function () {
                         marker.setLatLng([coord.lat, coord.lng]);
                         if (coord.lat === coordUser[0] && coord.lng === coordUser[1]) {
-                            alert('Seu táxi chegou ao destino!');
+                            alert('O guincho chegou ao destino!');
                         }
-                    }, 1000 * index); // A cada segundo, atualiza a posição do táxi no mapa
+                    }, 1000 * index); // A cada segundo, atualiza a posição do guincho no mapa
                 });
             }).addTo(map);
         };
