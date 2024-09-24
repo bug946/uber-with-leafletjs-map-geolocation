@@ -31,8 +31,16 @@
     <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
 
     <script>
-        // Personalizar css no mapa
-        let myCustomColourUser = 'background-color: red;';
+        let map = L.map('map').setView([-20.188947, -50.934689], 15);
+        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png').addTo(map);
+
+        // Ícone do guincho
+        const guinchoIcon = L.icon({
+            className: "guincho-pointers",
+            iconUrl: 'Guincho.png',
+            iconSize: [45, 45]
+        });
+
         const markerHtml = `
 			width: 3rem;
 			height: 3rem;
@@ -42,74 +50,122 @@
 			position: relative;
 			border-radius: 3rem 3rem 0;
 			transform: rotate(45deg);
-			border: 3px solid #FFFFFF;`
+			border: 3px solid #FFFFFF;`;
 
-        // Coordenadas do Ponto A - Guincho
-        const coordGuincho = [-20.188947, -50.934689]; // Coordenadas iniciais do guincho
-        // Coordenadas do Ponto B - Usuário
-        const coordUser = [-20.194385, -50.915141]; // Destino final do guincho (usuário)
+        const myCustomColourUser = 'background-color: red;';
+        
+        // Coordenadas do guincho
+        const coordGuincho = [-20.188947, -50.934689];
+        const coordUser = [-20.194385, -50.915141]; // Primeira parada (cliente)
+        const coordMecanica = [-20.195658, -50.913247]; // Segunda parada (mecânica)
 
-        // Iniciar o mapa com coordenadas do ponto A
-        const map = L.map('map').setView(coordGuincho, 15);
+        // Marcador do guincho
+        let guinchoMarker = L.marker(coordGuincho, { icon: guinchoIcon }).addTo(map);
 
-        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png').addTo(map);
-
-        // Personalizar ícone do guincho
-        const guinchoIcon = L.icon({
-            className: "guincho-pointers",
-            iconUrl: 'Guincho.png', // Certifique-se de ter o ícone Guincho.png no diretório correto
-            iconSize: [45, 45]
+        // Marcador do cliente
+        let userIcon = L.divIcon({
+            className: "pointers",
+            iconAnchor: [0, 24],
+            labelAnchor: [-6, 0],
+            popupAnchor: [0, -36],
+            html: `<span style="${markerHtml}${myCustomColourUser}" />`
         });
-        const marker = L.marker(coordGuincho, { icon: guinchoIcon }).addTo(map);
+        let userMarker = L.marker(coordUser, { icon: userIcon }).addTo(map);
 
-        function startService() {
-            // Array de coordenadas simulando o trajeto do guincho até o cliente
-            const latlng = [
-                { lat: -20.188947, lng: -50.934689 }, // Ponto inicial (guincho)
-                { lat: -20.188987, lng: -50.933649 },
-                { lat: -20.189279, lng: -50.932200 },
-                { lat: -20.189843, lng: -50.929421 },
-                { lat: -20.190558, lng: -50.926331 },
-                { lat: -20.191283, lng: -50.925119 },
-                { lat: -20.191173, lng: -50.924282 },
-                { lat: -20.191938, lng: -50.922222 },
-                { lat: -20.192220, lng: -50.920903 },
-                { lat: -20.192774, lng: -50.919250 },
-                { lat: -20.193499, lng: -50.917351 },
-                { lat: -20.194244, lng: -50.915581 },
-                { lat: -20.194385, lng: -50.915141 }  // Destino final (usuário)
-            ];
+        // Rota 1: Guincho até o cliente
+        const routeToClient = [
+            { lat: -20.188947, lng: -50.934689 },  // Ponto inicial (guincho)
+            { lat: -20.188859, lng: -50.934028 },
+            { lat: -20.189043, lng: -50.933145 },
+            { lat: -20.189214, lng: -50.932468 },
+            { lat: -20.189407, lng: -50.931548 },
+            { lat: -20.189683, lng: -50.930315 },
+            { lat: -20.189968, lng: -50.929017 },
+            { lat: -20.190209, lng: -50.927831 },
+            { lat: -20.190411, lng: -50.926925 },
+            { lat: -20.190661, lng: -50.926089 },
+            { lat: -20.190832, lng: -50.925487 },
+            { lat: -20.191209, lng: -50.925108 },
+            { lat: -20.191353, lng: -50.924875 },
+            { lat: -20.191209, lng: -50.924188 },
+            { lat: -20.191533, lng: -50.923390 },
+            { lat: -20.191791, lng: -50.922615 },
+            { lat: -20.192142, lng: -50.921895 },
+            { lat: -20.192243, lng: -50.920989 },
+            { lat: -20.192366, lng: -50.920354 },
+            { lat: -20.192672, lng: -50.919598 },
+            { lat: -20.192953, lng: -50.918808 },
+            { lat: -20.193413, lng: -50.917650 },
+            { lat: -20.193781, lng: -50.916716 },
+            { lat: -20.194167, lng: -50.915680 },
+            { lat: -20.194334, lng: -50.915283 },
+            { lat: -20.194385, lng: -50.915141 }   // Ponto final (cliente)
+        ];
 
-            // Adiciona marcador personalizado para o usuário
-            const userIcon = L.divIcon({
-                className: "pointers",
-                iconAnchor: [0, 24],
-                labelAnchor: [-6, 0],
-                popupAnchor: [0, -36],
-                html: `<span style="${markerHtml}${myCustomColourUser}" />`
-            });
-            L.marker(coordUser, { icon: userIcon }).addTo(map);
+        // Rota 2: Cliente até a mecânica
+        const routeToMechanic = [
+            { lat: -20.194523, lng: -50.914752 },
+            { lat: -20.194514, lng: -50.914656 },
+            { lat: -20.194877, lng: -50.913754 },
+            { lat: -20.195410, lng: -50.912413 },
+            { lat: -20.195773, lng: -50.911512 },
+            { lat: -20.196075, lng: -50.910858 },
+            { lat: -20.196347, lng: -50.910514 },
+            { lat: -20.196578, lng: -50.910493 },
+            { lat: -20.196517, lng: -50.910564 },
+            { lat: -20.196444, lng: -50.910901 },
+            { lat: -20.196269, lng: -50.911344 },
+            { lat: -20.196055, lng: -50.911922 },
+            { lat: -20.195849, lng: -50.912515 },
+            { lat: -20.195696, lng: -50.912949 },
+            { lat: -20.195601, lng: -50.913170 },
+            { lat: -20.195658, lng: -50.913247 }   // Ponto final (mecânica)
+        ];
 
-            // Configura o controle de rota e as instruções em português
-            L.Routing.control({
-                waypoints: latlng.map(point => L.latLng(point.lat, point.lng)),
-                language: 'pt-BR', // Configuração de linguagem para Português
-                lineOptions: {
-                    styles: [{ color: 'red', opacity: 1, weight: 5 }] // Linha da rota em vermelho vívido
+        // Simulação do movimento ao longo da rota
+        function simulateRoute(marker, route, onReachDestination, callback) {
+            let i = 0;
+
+            function move() {
+                if (i < route.length) {
+                    marker.setLatLng([route[i].lat, route[i].lng]);
+                    
+                    if (i === route.length - 1 && onReachDestination) {
+                        onReachDestination(); // Chegou ao destino
+                    }
+                    
+                    i++;
+                    setTimeout(move, 1000); // Movimenta o guincho a cada segundo
+                } else {
+                    if (callback) callback(); // Executa a próxima rota
                 }
-            }).on('routesfound', function (e) {
-                latlng.forEach(function (coord, index) {
-                    setTimeout(function () {
-                        marker.setLatLng([coord.lat, coord.lng]);
-                        if (coord.lat === coordUser[0] && coord.lng === coordUser[1]) {
-                            alert('O guincho chegou ao destino!');
-                        }
-                    }, 1000 * index); // A cada segundo, atualiza a posição do guincho no mapa
-                });
-            }).addTo(map);
-        };
+            }
 
-        startService(); // Inicia o serviço ao carregar a página
+            move(); // Inicia a simulação
+        }
+
+        // Controlador da primeira rota (guincho até o cliente)
+        const routeControl = L.Routing.control({
+            waypoints: routeToClient.map(point => L.latLng(point.lat, point.lng)),
+            language: 'pt-BR',
+            lineOptions: {
+                styles: [{ color: 'red', opacity: 1, weight: 5 }] // Linha vermelha para a primeira rota
+            }
+        }).addTo(map);
+
+        // Simular o percurso até o cliente
+        simulateRoute(guinchoMarker, routeToClient, function () {
+            alert('O guincho chegou ao cliente!');
+            userMarker.remove(); // Remove o marcador do cliente
+
+            // Após a chegada ao cliente, remover a primeira rota e iniciar a segunda
+            map.removeControl(routeControl); // Remove a rota visual do cliente
+
+            // Iniciar o percurso até a mecânica (sem mostrar a rota no mapa)
+            simulateRoute(guinchoMarker, routeToMechanic, function () {
+                alert('Seu veículo chegou na mecânica!');
+            });
+        });
     </script>
 </body>
 
